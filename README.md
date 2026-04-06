@@ -1,0 +1,1 @@
+# chanfana-openapi-template
