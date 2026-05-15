@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Marketplace Nacional
 
-## Getting Started
+Plataforma de marketplace com IA integrada para negociacao de precos, multi-tenancy e pagamentos.
 
-First, run the development server:
+## Arquitetura Modular
+
+| Modulo | Funcao | Descricao |
+|--------|--------|-----------|
+| **Nexus** | Nucleo financeiro | Controle de saldo, margem minima R$7, relatorios por cidade/produto, multi-tenancy |
+| **Iara** | Negociacao IA | Propostas de preco dinamicas, protecao de margem, cancelamento automatico |
+| **Peri** | Atendimento | Confirmacao de pedidos, mensagens automaticas, notificacoes |
+| **Lovable Web** | Interface | Vitrine nacional, catalogo com busca/filtros, carrinho, checkout |
+
+## Stack Tecnica
+
+- **Frontend + API:** Next.js 16 (App Router, Turbopack)
+- **Banco de dados:** PostgreSQL + Prisma ORM 7
+- **Autenticacao:** JWT
+- **Pagamentos:** Stripe
+- **Estilo:** Tailwind CSS
+- **Cache:** In-memory (preparado para Redis)
+
+## Regras de Negocio (Iara)
+
+1. **Preco base** - Fornecedor anuncia produto com valor inicial
+2. **Proposta IA** - Iara sugere desconto (sempre abaixo do fornecedor)
+3. **Desconto minimo** - Se margem >= R$7, compra confirmada
+4. **Cancelamento** - Se margem < R$7, cancela automaticamente
+5. **Entrega** - Compra fechada, entrega confirmada ao cliente
+
+## Configuracao
 
 ```bash
+# 1. Instalar dependencias
+npm install
+
+# 2. Configurar variaveis de ambiente
+cp .env.example .env
+# Editar .env com suas credenciais
+
+# 3. Gerar Prisma Client
+npx prisma generate
+
+# 4. Criar banco de dados (requer PostgreSQL)
+npx prisma migrate dev
+
+# 5. Iniciar servidor de desenvolvimento
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Estrutura de Pastas
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+src/
+  app/
+    (auth)/           # Login, Registro
+    (storefront)/     # Produtos, Carrinho, Checkout
+    dashboard/
+      seller/         # Painel do vendedor
+      admin/          # Painel administrativo
+      nexus/          # Painel financeiro Nexus
+    api/
+      auth/           # Endpoints de autenticacao
+      products/       # CRUD de produtos
+      orders/         # Gestao de pedidos
+      cart/            # Carrinho
+      nexus/          # Balance + Reports
+      iara/           # Negociacao IA
+      peri/           # Mensagens
+      stripe/         # Webhook pagamentos
+      admin/          # Tenants + Stats
+  modules/
+    nexus/            # Logica financeira
+    iara/             # Logica de negociacao
+    peri/             # Logica de mensagens
+  components/
+    layout/           # Header, Footer
+    ui/               # ProductCard, etc.
+  lib/
+    prisma.ts         # Cliente Prisma
+    auth.ts           # JWT helpers
+    stripe.ts         # Stripe helpers
+    cache.ts          # Cache layer
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## API Endpoints
 
-## Learn More
+### Autenticacao
+- `POST /api/auth/register` - Cadastro
+- `POST /api/auth/login` - Login
+- `GET /api/auth/me` - Usuario atual
 
-To learn more about Next.js, take a look at the following resources:
+### Produtos
+- `GET /api/products` - Listar (com busca, filtros, paginacao)
+- `POST /api/products` - Criar (vendedor/admin)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Carrinho & Pedidos
+- `GET/POST/DELETE /api/cart` - Gerenciar carrinho
+- `GET/POST /api/orders` - Pedidos (com verificacao de margem)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Nexus (Financeiro)
+- `GET /api/nexus/balance` - Saldo do tenant
+- `GET /api/nexus/reports` - Relatorios por cidade/produto
 
-## Deploy on Vercel
+### Iara (IA)
+- `POST /api/iara/negotiate` - Negociar preco
+- `GET /api/iara/negotiate?productId=X` - Sugestao de preco
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Peri (Mensagens)
+- `GET /api/peri/messages` - Mensagens do usuario
+- `PATCH /api/peri/messages` - Marcar como lida
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Admin
+- `GET/POST /api/admin/tenants` - Gerenciar comercios
+- `GET /api/admin/stats` - Estatisticas globais
+
+### Stripe
+- `POST /api/stripe/webhook` - Webhook de pagamentos
+
+## Variaveis de Ambiente
+
+```
+DATABASE_URL=postgresql://...
+JWT_SECRET=sua-chave-secreta
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+REDIS_URL=redis://localhost:6379
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+PLATFORM_FEE_PERCENT=10
+MIN_MARGIN_BRL=7
+```
+
+## Roadmap
+
+- [x] Mes 1: Banco de dados, API REST, Autenticacao JWT
+- [ ] Mes 2: Integracao Stripe real, WhatsApp API (Peri), Lovable Mobile
+- [ ] Mes 3: IA com GPT (Iara), Chatbot Peri, Redis cache, Relatorios IA
+- [ ] Mes 4: Multi-tenancy completo, Cobranca recorrente, BI/Analytics, Cloud scaling
