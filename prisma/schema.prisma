@@ -1,0 +1,176 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  BUYER
+  SELLER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  DELIVERED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+}
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  city      String
+  state     String
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users    User[]
+  products Product[]
+  orders   Order[]
+  balances Balance[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         UserRole @default(BUYER)
+  tenantId     String?
+  stripeCustomerId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant        Tenant?        @relation(fields: [tenantId], references: [id])
+  products      Product[]
+  orders        Order[]
+  cartItems     CartItem[]
+  messages      Message[]
+  subscriptions Subscription[]
+}
+
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  basePrice   Float
+  currentPrice Float
+  imageUrl    String?
+  category    String
+  city        String
+  stock       Int     @default(0)
+  isActive    Boolean @default(true)
+  minMargin   Float   @default(7.0)
+  tenantId    String
+  sellerId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id])
+  seller     User       @relation(fields: [sellerId], references: [id])
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  negotiations Negotiation[]
+}
+
+model CartItem {
+  id        String @id @default(cuid())
+  quantity  Int    @default(1)
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  status          OrderStatus @default(PENDING)
+  totalAmount     Float
+  platformFee     Float
+  sellerAmount    Float
+  stripePaymentId String?
+  userId          String
+  tenantId        String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user   User        @relation(fields: [userId], references: [id])
+  tenant Tenant      @relation(fields: [tenantId], references: [id])
+  items  OrderItem[]
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  quantity  Int
+  unitPrice Float
+  productId String
+  orderId   String
+
+  product Product @relation(fields: [productId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id])
+}
+
+model Balance {
+  id            String @id @default(cuid())
+  currentBalance Float @default(0)
+  totalRevenue   Float @default(0)
+  totalFees      Float @default(0)
+  tenantId       String
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId])
+}
+
+model Negotiation {
+  id            String  @id @default(cuid())
+  productId     String
+  originalPrice Float
+  proposedPrice Float
+  margin        Float
+  accepted      Boolean
+  reason        String?
+  createdAt     DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  type      String   @default("info")
+  isRead    Boolean  @default(false)
+  userId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Subscription {
+  id               String             @id @default(cuid())
+  plan             String
+  priceMonthly     Float
+  status           SubscriptionStatus @default(ACTIVE)
+  stripeSubId      String?
+  userId           String
+  currentPeriodEnd DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
