@@ -1,7 +1,11 @@
 // server.js
 const express = require("express");
+const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Servir arquivos estáticos do React build
+app.use(express.static(path.join(__dirname, "build")));
 
 // =======================
 // NEXUS – núcleo técnico
@@ -61,6 +65,11 @@ app.get("/vitrine", (req, res) => {
 // Saldo Nexus
 app.get("/saldo", (req, res) => {
   res.json({ saldo });
+});
+
+// Rota catch-all para servir o React app
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
 // Inicialização

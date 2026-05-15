@@ -52,6 +52,14 @@ npm run demo
 
 Roda o `dropship-saas.js` com testes de todos os módulos no terminal.
 
+### Desenvolvimento (backend + frontend)
+
+```bash
+npm run dev
+```
+
+Roda o backend Express e o frontend React simultaneamente com `concurrently`.
+
 ### Frontend React
 
 O arquivo `src/App.js` consome as rotas da API e exibe:
@@ -60,22 +68,33 @@ O arquivo `src/App.js` consome as rotas da API e exibe:
 - Confirmação de pedido (Peri)
 - Saldo do Nexus
 
-## Processos (Procfile)
+### Build para produção
+
+```bash
+npm run build
+```
+
+Gera o build do React em `/build` e o `server.js` serve os arquivos estáticos automaticamente.
+
+## Deploy (Heroku, Railway, Render)
+
+O `Procfile` executa o build e inicia o servidor:
 
 ```
-web: node server.js
-frontend: npm start
+web: npm run build && node server.js
 ```
 
 ## Estrutura
 
 ```
-├── server.js          # Servidor Express com rotas da API
+├── server.js          # Backend Express (endpoints + serve React build)
 ├── dropship-saas.js   # Código completo com todos os módulos e testes
 ├── src/
 │   └── App.js         # Frontend React (consome a API)
-├── Procfile           # Configuração de processos (web + frontend)
-├── package.json       # Dependências e scripts
+├── public/
+│   └── index.html     # Página base do React
+├── Procfile           # Inicialização em nuvem (Heroku, Railway, Render)
+├── package.json       # Configuração com concurrently para backend + frontend
 └── README.md          # Documentação
 ```
 

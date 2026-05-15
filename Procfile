@@ -1,2 +1,1 @@
-web: node server.js
-frontend: npm start
+web: npm run build && node server.js
