@@ -60,6 +60,13 @@ O arquivo `src/App.js` consome as rotas da API e exibe:
 - Confirmação de pedido (Peri)
 - Saldo do Nexus
 
+## Processos (Procfile)
+
+```
+web: node server.js
+frontend: npm start
+```
+
 ## Estrutura
 
 ```
@@ -67,6 +74,7 @@ O arquivo `src/App.js` consome as rotas da API e exibe:
 ├── dropship-saas.js   # Código completo com todos os módulos e testes
 ├── src/
 │   └── App.js         # Frontend React (consome a API)
+├── Procfile           # Configuração de processos (web + frontend)
 ├── package.json       # Dependências e scripts
 └── README.md          # Documentação
 ```
