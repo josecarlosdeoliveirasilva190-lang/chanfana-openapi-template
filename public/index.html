@@ -1,12 +1,501 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#e94560">
+  <meta name="description" content="Iara Dropship SaaS - Plataforma completa de Dropshipping">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Iara Dropship">
+  <link rel="manifest" href="/manifest.json">
   <title>Iara Dropship SaaS</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d0d1a; color: #eee; min-height: 100vh; }
+
+    /* Header */
+    .header { background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); padding: 20px 16px; text-align: center; }
+    .header h1 { font-size: 22px; color: #fff; }
+    .header h1 span { color: #e94560; }
+    .header p { color: #aaa; font-size: 13px; margin-top: 4px; }
+
+    /* Nav */
+    .nav { display: flex; background: #16213e; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; border-bottom: 2px solid #0f3460; position: sticky; top: 0; z-index: 100; }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav-item { flex: 0 0 auto; padding: 10px 14px; color: #888; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.2s; }
+    .nav-item.active { color: #e94560; border-bottom-color: #e94560; }
+
+    /* Content */
+    .page { display: none; padding: 16px; animation: fadeIn 0.2s ease; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .card { background: #16213e; border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid #1e2d4a; }
+    .card h3 { font-size: 16px; margin-bottom: 8px; color: #fff; }
+    .card p { font-size: 14px; color: #ccc; line-height: 1.5; }
+
+    /* Products */
+    .product { background: #1e2d4a; border-radius: 10px; padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .product-name { font-size: 15px; font-weight: 600; }
+    .product-desc { font-size: 12px; color: #888; margin-top: 2px; }
+    .product-price { color: #e94560; font-weight: bold; font-size: 18px; }
+    .product-stock { font-size: 11px; color: #51cf66; }
+
+    /* Buttons */
+    .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: #e94560; color: #fff; }
+    .btn-primary:hover { background: #d63851; }
+    .btn-secondary { background: #0f3460; color: #e94560; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    /* Form */
+    .input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #1e2d4a; background: #0d0d1a; color: #eee; font-size: 14px; margin-bottom: 10px; }
+    .input:focus { outline: none; border-color: #e94560; }
+    .label { font-size: 12px; color: #888; margin-bottom: 4px; display: block; }
+
+    /* Badge */
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+    .badge-success { background: rgba(81,207,102,0.15); color: #51cf66; }
+    .badge-danger { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+    .badge-info { background: rgba(62,184,237,0.15); color: #3eb8ed; }
+    .badge-warning { background: rgba(242,154,69,0.15); color: #f29a45; }
+
+    /* Stats */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-box { background: #1e2d4a; border-radius: 10px; padding: 14px; text-align: center; }
+    .stat-value { font-size: 24px; font-weight: 800; color: #e94560; }
+    .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+
+    /* Step */
+    .step { display: flex; gap: 12px; margin-bottom: 16px; }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; background: #e94560; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+    .step-content h4 { font-size: 15px; margin-bottom: 4px; }
+    .step-content p { font-size: 13px; color: #aaa; }
+    .step-check { font-size: 13px; color: #51cf66; margin-top: 4px; }
+
+    /* Table */
+    .table { width: 100%; font-size: 13px; border-collapse: collapse; }
+    .table td, .table th { padding: 8px; text-align: left; border-bottom: 1px solid #1e2d4a; }
+    .table th { color: #888; font-weight: 600; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #16213e; border: 1px solid #e94560; color: #eee; padding: 12px 24px; border-radius: 10px; font-size: 14px; z-index: 1000; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+    .toast.show { display: block; animation: slideUp 0.3s ease; }
+    @keyframes slideUp { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+    /* Loading */
+    .loading { text-align: center; padding: 40px; color: #888; }
+    .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid #1e2d4a; border-top-color: #e94560; border-radius: 50%; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Footer */
+    .footer { text-align: center; padding: 20px; color: #555; font-size: 12px; border-top: 1px solid #1e2d4a; margin-top: 16px; }
+    .footer a { color: #e94560; text-decoration: none; }
+
+    /* Install banner */
+    .install-banner { display: none; background: linear-gradient(135deg, #e94560, #d63851); padding: 12px 16px; text-align: center; cursor: pointer; }
+    .install-banner p { color: #fff; font-size: 14px; font-weight: 600; }
+  </style>
 </head>
 <body>
-  <noscript>Você precisa habilitar o JavaScript para rodar esta aplicação.</noscript>
-  <div id="root"></div>
+
+  <div class="install-banner" id="installBanner" onclick="installApp()">
+    <p>📲 Instalar Iara Dropship no seu celular</p>
+  </div>
+
+  <div class="header">
+    <h1>🛒 <span>Iara</span> Dropship SaaS</h1>
+    <p>Plataforma completa de Dropshipping Nacional</p>
+  </div>
+
+  <div class="nav">
+    <div class="nav-item active" data-tab="home">🏠 Inicio</div>
+    <div class="nav-item" data-tab="vitrine">🛍️ Vitrine</div>
+    <div class="nav-item" data-tab="fluxo">📋 Fluxo</div>
+    <div class="nav-item" data-tab="negociar">🤝 Iara</div>
+    <div class="nav-item" data-tab="pedidos">📦 Pedidos</div>
+    <div class="nav-item" data-tab="financeiro">💰 Nexus</div>
+    <div class="nav-item" data-tab="api">🔌 API</div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="home">
+    <div class="card">
+      <h3>🚀 Bem-vindo ao Iara Dropship</h3>
+      <p>Plataforma SaaS completa para dropshipping nacional com negociacao automatica, pagamento via Mercado Pago, atendimento WhatsApp e relatorios financeiros.</p>
+    </div>
+    <div class="stat-grid" id="homeStats">
+      <div class="stat-box"><div class="stat-value">-</div><div class="stat-label">Modulos</div></div>
+      <div class="stat-box"><div class="stat-value">-</div><div class="stat-label">Produtos</div></div>
+      <div class="stat-box"><div class="stat-value">-</div><div class="stat-label">Status</div></div>
+      <div class="stat-box"><div class="stat-value">-</div><div class="stat-label">Versao</div></div>
+    </div>
+    <div class="card" style="margin-top: 12px;">
+      <h3>Tecnologias</h3>
+      <p>Node.js + Express • PostgreSQL • Redis • Mercado Pago API • WhatsApp Business API • JWT Auth • Multi-tenant</p>
+    </div>
+  </div>
+
+  <!-- VITRINE -->
+  <div class="page" id="vitrine">
+    <div class="card"><h3>🛍️ Vitrine Nacional</h3><p>Produtos disponiveis para venda</p></div>
+    <div id="produtosList"><div class="loading"><div class="spinner"></div><p>Carregando produtos...</p></div></div>
+  </div>
+
+  <!-- FLUXO -->
+  <div class="page" id="fluxo">
+    <div class="card"><h3>📋 Fluxo Completo do Dropshipping</h3><p>7 etapas para operar sua loja</p></div>
+
+    <div class="card">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Configurar a Loja SaaS</h4><p>Plataforma online como vitrine dos produtos</p><div class="step-check">✓ CMS/Framework SaaS ✓ Dominio ✓ Banco de dados</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Conectar Fornecedores</h4><p>APIs de fornecedores com sincronizacao de estoque</p><div class="step-check">✓ APIs ✓ Estoque ✓ Regras de preco</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Automatizar Pagamentos</h4><p>Mercado Pago: Pix, boleto e cartao</p><div class="step-check">✓ Mercado Pago ✓ Webhooks ✓ Status automatico</div></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><h4>Gerenciar Pedidos</h4><p>Envio automatico ao fornecedor apos confirmacao</p><div class="step-check">✓ Auto-envio ✓ Confirmacao ✓ Rastreio</div></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-content"><h4>Logistica e Entrega</h4><p>Rastreio em tempo real e notificacoes</p><div class="step-check">✓ Rastreio API ✓ Notificacoes ✓ SLA</div></div></div>
+      <div class="step"><div class="step-num">6</div><div class="step-content"><h4>Atendimento ao Cliente</h4><p>WhatsApp Business API + respostas automaticas</p><div class="step-check">✓ WhatsApp ✓ Peri ✓ Historico</div></div></div>
+      <div class="step"><div class="step-num">7</div><div class="step-content"><h4>Relatorios e Escala</h4><p>Dashboards BI e previsao com IA</p><div class="step-check">✓ Looker Studio ✓ IA ✓ Campanhas</div></div></div>
+    </div>
+  </div>
+
+  <!-- NEGOCIAR -->
+  <div class="page" id="negociar">
+    <div class="card"><h3>🤝 Modulo Iara — Negociacao</h3><p>Negociacao automatica com regras e IA</p></div>
+    <div class="card">
+      <label class="label">Preco Base (R$)</label>
+      <input type="number" class="input" id="precoBase" value="100" min="1">
+      <label class="label">Preco Fornecedor (R$)</label>
+      <input type="number" class="input" id="precoFornecedor" value="45" min="1">
+      <button class="btn btn-primary" onclick="simularNegociacao()" style="width: 100%;">Simular Negociacao</button>
+    </div>
+    <div id="negociacaoResultado"></div>
+    <div class="card">
+      <h3>Regras de Negociacao</h3>
+      <table class="table">
+        <tr><th>Regra</th><th>Valor</th></tr>
+        <tr><td>Desconto minimo</td><td>R$ 7</td></tr>
+        <tr><td>Margem minima</td><td>15%</td></tr>
+        <tr><td>Desconto automatico</td><td>5%</td></tr>
+        <tr><td>Max contra-propostas</td><td>3</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- PEDIDOS -->
+  <div class="page" id="pedidos">
+    <div class="card"><h3>📦 Gestao de Pedidos</h3><p>Modulo Peri — Atendimento e pedidos</p></div>
+    <div class="card">
+      <h3>Simular Pedido</h3>
+      <label class="label">Cliente</label>
+      <input type="text" class="input" id="clienteNome" value="Joao Silva">
+      <label class="label">Produto</label>
+      <input type="text" class="input" id="produtoPedido" value="Perfume Lis">
+      <label class="label">Preco (R$)</label>
+      <input type="number" class="input" id="precoPedido" value="95" min="1">
+      <button class="btn btn-primary" onclick="simularPedido()" style="width: 100%;">Confirmar Pedido</button>
+    </div>
+    <div id="pedidoResultado"></div>
+    <div class="card">
+      <h3>Fluxo do Pedido</h3>
+      <table class="table">
+        <tr><th>Etapa</th><th>Status</th></tr>
+        <tr><td>Pedido recebido</td><td><span class="badge badge-success">Auto</span></td></tr>
+        <tr><td>Pagamento (Mercado Pago)</td><td><span class="badge badge-info">Webhook</span></td></tr>
+        <tr><td>Envio ao fornecedor</td><td><span class="badge badge-success">Auto</span></td></tr>
+        <tr><td>Notificacao WhatsApp</td><td><span class="badge badge-success">Peri</span></td></tr>
+        <tr><td>Rastreio</td><td><span class="badge badge-warning">API</span></td></tr>
+        <tr><td>Entrega</td><td><span class="badge badge-success">Webhook</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- FINANCEIRO -->
+  <div class="page" id="financeiro">
+    <div class="card"><h3>💰 Modulo Nexus — Financeiro</h3><p>Controle financeiro e relatorios</p></div>
+    <div class="card">
+      <h3>Verificar Margem</h3>
+      <label class="label">Preco de Venda (R$)</label>
+      <input type="number" class="input" id="margemVenda" value="95" min="1">
+      <label class="label">Preco do Fornecedor (R$)</label>
+      <input type="number" class="input" id="margemFornecedor" value="45" min="1">
+      <button class="btn btn-primary" onclick="verificarMargem()" style="width: 100%;">Calcular Margem</button>
+    </div>
+    <div id="margemResultado"></div>
+    <div class="card">
+      <h3>Funcoes do Nexus</h3>
+      <table class="table">
+        <tr><th>Funcao</th><th>Descricao</th></tr>
+        <tr><td>Saldo</td><td>Controle de entradas e saidas</td></tr>
+        <tr><td>Relatorios</td><td>Por produto, cliente e periodo</td></tr>
+        <tr><td>Margem</td><td>Verificacao automatica de margem</td></tr>
+        <tr><td>Exportacao BI</td><td>Dados para Looker Studio</td></tr>
+        <tr><td>Multi-tenant</td><td>Lojas isoladas por tenant</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- API -->
+  <div class="page" id="api">
+    <div class="card"><h3>🔌 Documentacao da API</h3><p>Todos os endpoints disponiveis</p></div>
+    <div id="apiDocs"><div class="loading"><div class="spinner"></div><p>Carregando docs...</p></div></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="footer">
+    <p><strong>Iara Dropship SaaS</strong> v2.0.0 &copy; 2026</p>
+    <p style="margin-top: 4px;"><a href="https://github.com/josecarlosdeoliveirasilva190-lang/chanfana-openapi-template">GitHub</a></p>
+  </div>
+
+  <script>
+    const API = '';
+
+    // Navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        item.classList.add('active');
+        document.getElementById(item.dataset.tab).classList.add('active');
+        if (item.dataset.tab === 'vitrine') loadVitrine();
+        if (item.dataset.tab === 'api') loadDocs();
+      });
+    });
+
+    // Toast
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // Load health
+    async function loadHealth() {
+      try {
+        const r = await fetch(API + '/api/health');
+        const d = await r.json();
+        const mods = Object.values(d.modulos).filter(v => v === 'ativo').length;
+        document.getElementById('homeStats').innerHTML = `
+          <div class="stat-box"><div class="stat-value">${mods}</div><div class="stat-label">Modulos Ativos</div></div>
+          <div class="stat-box"><div class="stat-value">6</div><div class="stat-label">Produtos</div></div>
+          <div class="stat-box"><div class="stat-value" style="color: #51cf66;">${d.status}</div><div class="stat-label">Status</div></div>
+          <div class="stat-box"><div class="stat-value">${d.versao}</div><div class="stat-label">Versao</div></div>
+        `;
+      } catch (e) {
+        console.log('API offline, usando dados estaticos');
+        document.getElementById('homeStats').innerHTML = `
+          <div class="stat-box"><div class="stat-value">5</div><div class="stat-label">Modulos</div></div>
+          <div class="stat-box"><div class="stat-value">6</div><div class="stat-label">Produtos</div></div>
+          <div class="stat-box"><div class="stat-value">7</div><div class="stat-label">Etapas</div></div>
+          <div class="stat-box"><div class="stat-value" style="color: #51cf66;">100%</div><div class="stat-label">Completo</div></div>
+        `;
+      }
+    }
+
+    // Load vitrine
+    async function loadVitrine() {
+      const el = document.getElementById('produtosList');
+      try {
+        const r = await fetch(API + '/api/produtos/vitrine/iara-dropship');
+        const d = await r.json();
+        if (d.produtos && d.produtos.length > 0) {
+          el.innerHTML = d.produtos.map(p => `
+            <div class="product">
+              <div>
+                <div class="product-name">${p.nome}</div>
+                <div class="product-desc">${p.descricao || p.categoria || ''}</div>
+                <div class="product-stock">Estoque: ${p.estoque}</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="product-price">R$ ${parseFloat(p.preco).toFixed(2)}</div>
+                <button class="btn btn-sm btn-secondary" onclick="showToast('Produto adicionado!')">Comprar</button>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          throw new Error('empty');
+        }
+      } catch (e) {
+        el.innerHTML = [
+          { nome: 'Perfume Lis', desc: 'Perfume floral premium 100ml', preco: 95, cat: 'Perfumaria', est: 100 },
+          { nome: 'Creme Hidratante', desc: 'Creme corporal 200ml', preco: 88, cat: 'Cosmeticos', est: 150 },
+          { nome: 'Kit Maquiagem', desc: 'Kit completo 12 pecas', preco: 149.90, cat: 'Maquiagem', est: 80 },
+          { nome: 'Shampoo Premium', desc: 'Para cabelos danificados 300ml', preco: 45, cat: 'Cabelos', est: 200 },
+          { nome: 'Protetor Solar', desc: 'FPS 50 rosto e corpo 120ml', preco: 65, cat: 'Cuidados', est: 120 },
+          { nome: 'Batom Matte', desc: 'Longa duracao', preco: 35, cat: 'Maquiagem', est: 300 }
+        ].map(p => `
+          <div class="product">
+            <div>
+              <div class="product-name">${p.nome}</div>
+              <div class="product-desc">${p.desc} • ${p.cat}</div>
+              <div class="product-stock">Estoque: ${p.est}</div>
+            </div>
+            <div style="text-align: right;">
+              <div class="product-price">R$ ${p.preco.toFixed(2)}</div>
+              <button class="btn btn-sm btn-secondary" onclick="showToast('Produto adicionado!')">Comprar</button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Simular negociacao
+    function simularNegociacao() {
+      const base = parseFloat(document.getElementById('precoBase').value);
+      const fornecedor = parseFloat(document.getElementById('precoFornecedor').value);
+      const desconto = base * 0.05;
+      const proposta = base - desconto;
+      const margem = ((proposta - fornecedor) / proposta) * 100;
+      const status = desconto >= 7 && margem >= 15 ? 'confirmado' : 'cancelado';
+      const motivo = desconto < 7 ? `Desconto R$${desconto.toFixed(2)} < minimo R$7` : margem < 15 ? `Margem ${margem.toFixed(1)}% < minimo 15%` : `Desconto R$${desconto.toFixed(2)} aceito. Margem ${margem.toFixed(1)}%`;
+
+      document.getElementById('negociacaoResultado').innerHTML = `
+        <div class="card">
+          <h3>Resultado da Negociacao</h3>
+          <table class="table">
+            <tr><td>Preco Base</td><td><strong>R$ ${base.toFixed(2)}</strong></td></tr>
+            <tr><td>Proposta Iara</td><td><strong>R$ ${proposta.toFixed(2)}</strong></td></tr>
+            <tr><td>Desconto</td><td><strong>R$ ${desconto.toFixed(2)}</strong></td></tr>
+            <tr><td>Margem</td><td><strong>${margem.toFixed(1)}%</strong></td></tr>
+            <tr><td>Lucro Estimado</td><td><strong>R$ ${(proposta - fornecedor).toFixed(2)}</strong></td></tr>
+            <tr><td>Status</td><td><span class="badge ${status === 'confirmado' ? 'badge-success' : 'badge-danger'}">${status.toUpperCase()}</span></td></tr>
+          </table>
+          <p style="font-size: 13px; color: #aaa; margin-top: 8px;">${motivo}</p>
+        </div>
+      `;
+      showToast(`Negociacao: ${status}`);
+    }
+
+    // Simular pedido
+    function simularPedido() {
+      const cliente = document.getElementById('clienteNome').value;
+      const produto = document.getElementById('produtoPedido').value;
+      const preco = parseFloat(document.getElementById('precoPedido').value);
+      const num = Math.floor(Math.random() * 9000) + 1000;
+
+      document.getElementById('pedidoResultado').innerHTML = `
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3>Pedido #${num}</h3>
+            <span class="badge badge-success">Confirmado</span>
+          </div>
+          <table class="table">
+            <tr><td>Cliente</td><td><strong>${cliente}</strong></td></tr>
+            <tr><td>Produto</td><td><strong>${produto}</strong></td></tr>
+            <tr><td>Preco</td><td><strong style="color: #e94560;">R$ ${preco.toFixed(2)}</strong></td></tr>
+            <tr><td>Pagamento</td><td><span class="badge badge-warning">Aguardando</span></td></tr>
+            <tr><td>WhatsApp</td><td><span class="badge badge-info">Notificado</span></td></tr>
+          </table>
+          <p style="font-size: 13px; color: #51cf66; margin-top: 8px;">✅ Pedido confirmado: ${cliente} comprou ${produto} por R$${preco.toFixed(2)}</p>
+        </div>
+      `;
+      showToast('Pedido criado com sucesso!');
+    }
+
+    // Verificar margem
+    function verificarMargem() {
+      const venda = parseFloat(document.getElementById('margemVenda').value);
+      const fornecedor = parseFloat(document.getElementById('margemFornecedor').value);
+      const margem = ((venda - fornecedor) / venda) * 100;
+      const lucro = venda - fornecedor;
+      const ok = margem >= 15;
+
+      document.getElementById('margemResultado').innerHTML = `
+        <div class="card">
+          <h3>Analise de Margem</h3>
+          <div class="stat-grid">
+            <div class="stat-box"><div class="stat-value">${margem.toFixed(1)}%</div><div class="stat-label">Margem</div></div>
+            <div class="stat-box"><div class="stat-value">R$ ${lucro.toFixed(2)}</div><div class="stat-label">Lucro</div></div>
+          </div>
+          <p style="margin-top: 12px; font-size: 14px;">Status: <span class="badge ${ok ? 'badge-success' : 'badge-danger'}">${ok ? 'MARGEM OK' : 'MARGEM BAIXA'}</span></p>
+          <p style="font-size: 13px; color: #aaa; margin-top: 4px;">${ok ? 'Margem atende o minimo de 15%' : 'Margem abaixo do minimo de 15%. Ajuste o preco de venda.'}</p>
+        </div>
+      `;
+      showToast(ok ? 'Margem aprovada!' : 'Margem insuficiente!');
+    }
+
+    // Load API docs
+    async function loadDocs() {
+      const el = document.getElementById('apiDocs');
+      try {
+        const r = await fetch(API + '/api/docs');
+        const d = await r.json();
+        let html = '';
+        for (const [grupo, endpoints] of Object.entries(d.endpoints)) {
+          html += `<div class="card"><h3>${grupo.charAt(0).toUpperCase() + grupo.slice(1)}</h3><table class="table">`;
+          for (const [endpoint, desc] of Object.entries(endpoints)) {
+            const method = endpoint.split(' ')[0];
+            const badgeClass = method === 'GET' ? 'badge-success' : method === 'POST' ? 'badge-info' : method === 'PATCH' ? 'badge-warning' : 'badge-danger';
+            html += `<tr><td><span class="badge ${badgeClass}">${method}</span> <code style="font-size: 12px; color: #3eb8ed;">${endpoint.split(' ').slice(1).join(' ')}</code></td></tr><tr><td style="color: #aaa; padding-left: 20px;">${desc}</td></tr>`;
+          }
+          html += '</table></div>';
+        }
+        el.innerHTML = html;
+      } catch (e) {
+        el.innerHTML = `
+          <div class="card"><h3>Auth</h3><table class="table">
+            <tr><td><span class="badge badge-info">POST</span> <code style="color: #3eb8ed;">/api/auth/login</code></td></tr>
+            <tr><td style="color: #aaa; padding-left: 20px;">Login com email e senha → JWT token</td></tr>
+            <tr><td><span class="badge badge-info">POST</span> <code style="color: #3eb8ed;">/api/auth/registrar</code></td></tr>
+            <tr><td style="color: #aaa; padding-left: 20px;">Registrar nova loja + usuario admin</td></tr>
+          </table></div>
+          <div class="card"><h3>Produtos</h3><table class="table">
+            <tr><td><span class="badge badge-success">GET</span> <code style="color: #3eb8ed;">/api/produtos/vitrine/:slug</code></td></tr>
+            <tr><td style="color: #aaa; padding-left: 20px;">Vitrine publica (sem auth)</td></tr>
+            <tr><td><span class="badge badge-success">GET</span> <code style="color: #3eb8ed;">/api/produtos</code></td></tr>
+            <tr><td style="color: #aaa; padding-left: 20px;">Listar produtos [JWT]</td></tr>
+            <tr><td><span class="badge badge-info">POST</span> <code style="color: #3eb8ed;">/api/produtos</code></td></tr>
+            <tr><td style="color: #aaa; padding-left: 20px;">Criar produto [JWT]</td></tr>
+          </table></div>
+          <div class="card"><h3>Pedidos</h3><table class="table">
+            <tr><td><span class="badge badge-info">POST</span> <code style="color: #3eb8ed;">/api/pedidos</code></td></tr>
+            <tr><td style="color: #aaa; padding-left: 20px;">Criar pedido (checkout) [JWT]</td></tr>
+            <tr><td><span class="badge badge-info">POST</span> <code style="color: #3eb8ed;">/api/pedidos/:id/checkout</code></td></tr>
+            <tr><td style="color: #aaa; padding-left: 20px;">Gerar checkout Mercado Pago [JWT]</td></tr>
+            <tr><td><span class="badge badge-info">POST</span> <code style="color: #3eb8ed;">/api/pedidos/:id/pix</code></td></tr>
+            <tr><td style="color: #aaa; padding-left: 20px;">Gerar Pix [JWT]</td></tr>
+          </table></div>
+          <div class="card"><h3>Financeiro</h3><table class="table">
+            <tr><td><span class="badge badge-success">GET</span> <code style="color: #3eb8ed;">/api/financeiro/saldo</code></td></tr>
+            <tr><td style="color: #aaa; padding-left: 20px;">Saldo do Nexus [JWT]</td></tr>
+            <tr><td><span class="badge badge-success">GET</span> <code style="color: #3eb8ed;">/api/financeiro/exportar</code></td></tr>
+            <tr><td style="color: #aaa; padding-left: 20px;">Exportar dados para BI [JWT]</td></tr>
+          </table></div>
+          <div class="card"><h3>Webhooks</h3><table class="table">
+            <tr><td><span class="badge badge-info">POST</span> <code style="color: #3eb8ed;">/api/webhooks/mercadopago</code></td></tr>
+            <tr><td style="color: #aaa; padding-left: 20px;">Webhook Mercado Pago</td></tr>
+            <tr><td><span class="badge badge-info">POST</span> <code style="color: #3eb8ed;">/api/webhooks/whatsapp</code></td></tr>
+            <tr><td style="color: #aaa; padding-left: 20px;">Webhook WhatsApp</td></tr>
+          </table></div>
+        `;
+      }
+    }
+
+    // PWA Install
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('installBanner').style.display = 'block';
+    });
+    function installApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          deferredPrompt = null;
+          document.getElementById('installBanner').style.display = 'none';
+        });
+      }
+    }
+
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
+    // Init
+    loadHealth();
+  </script>
 </body>
 </html>

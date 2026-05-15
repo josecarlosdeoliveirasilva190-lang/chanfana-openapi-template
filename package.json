@@ -1,34 +1,37 @@
 {
   "name": "dropship-saas",
-  "version": "1.0.0",
-  "description": "SaaS completo de Dropshipping com Nexus, Iara, Peri, Lovable e Integração",
+  "version": "2.0.0",
+  "description": "SaaS completo de Dropshipping com Nexus, Iara, Peri, Lovable, Mercado Pago, WhatsApp e PostgreSQL",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "frontend": "react-scripts start",
-    "build": "react-scripts build",
-    "dev": "concurrently \"npm start\" \"npm run frontend\"",
+    "dev": "NODE_ENV=development node server.js",
+    "db:init": "node src/models/init.js",
+    "db:seed": "node src/models/seed.js",
     "demo": "node dropship-saas.js"
   },
   "keywords": [
     "dropshipping",
     "saas",
     "ecommerce",
-    "negociacao",
-    "atendimento"
+    "mercadopago",
+    "whatsapp",
+    "multi-tenant"
   ],
   "author": "Carlos Oliveira",
   "license": "MIT",
   "dependencies": {
-    "concurrently": "^8.2.2",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.18.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1"
-  },
-  "proxy": "http://localhost:3000",
-  "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.3.2",
+    "jsonwebtoken": "^9.0.2",
+    "mercadopago": "^2.0.8",
+    "morgan": "^1.10.0",
+    "pg": "^8.12.0",
+    "uuid": "^9.0.0"
   }
 }
