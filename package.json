@@ -1,0 +1,24 @@
+{
+  "name": "dropship-saas",
+  "version": "1.0.0",
+  "description": "SaaS completo de Dropshipping com Nexus, Iara, Peri, Lovable e Integração",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "demo": "node dropship-saas.js"
+  },
+  "keywords": [
+    "dropshipping",
+    "saas",
+    "ecommerce",
+    "negociacao",
+    "atendimento"
+  ],
+  "author": "Carlos Oliveira",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
